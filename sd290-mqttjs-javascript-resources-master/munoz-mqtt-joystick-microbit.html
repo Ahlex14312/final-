@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Joy Stick</title>
+	<meta charset="utf-8">
+	<meta name="description" content="Example page of use pure Javascript JoyStick">
+	<meta name="author" content="Roberto D'Amico">
+	<!-- Added the Bootstrap CDN -->
+	<!-- Latest compiled and minified CSS -->
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+	<!-- jQuery library -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+	<!-- Latest compiled JavaScript -->
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+	<style>
+
+		body {
+			margin: 0px;
+			padding: 0px;
+			font-family: monospace;
+		}
+
+		#joyStick {
+			width: 200px;
+			height: 200px;
+			text-align: center;
+		}
+
+		#direction {
+			width: 20%;
+			border: 1px solid black;
+		}
+
+		h1 {
+			border: 1px solid black;
+			text-align: center;
+		}
+
+		h4 {
+			text-align: center;
+			font-weight: bold;
+		}
+
+		.container-fluid {
+			border: 2px solid black;
+			height: 250px;
+		}
+	</style>
+
+	<script src="./browserMqtt.js"></script>
+	<script src="./joy.js"></script>
+
+</head>
+
+<body>
+
+	<div class="text-center">
+		<div class="container">
+
+			<h1>Joy Stick</h1>
+			<h4 id='status-header' class="font-weight-bold">Connecting to broker...</h4>
+			<div class="container-fluid">
+				<center>
+					<div id="joystick"> 	
+					</div>
+					<label for="">Direction:</label>
+					<div>
+						<input type="text" id="direction" class="form-control">
+					</div>
+				</center>
+				
+			</div>
+
+		</div>
+	</div>
+
+
+	<script type="text/javascript">
+
+		var joyStick = new JoyStick('joystick'); //Initialized variable joyStick equal to new JoyStick('joyStick')
+		var inputVal = document.getElementById('direction'); // Initialized variable inputVal equal to  document.getElementById('direction');
+		let oldValue = "C"; //Initialized variable oldValue equal to 'C'
+        
+		//setting up interval
+		setInterval(function () {
+			if (oldValue != joyStick.GetDir()) {
+				inputVal.value = joyStick.GetDir()
+				client.publish('joystick', inputVal.value) //client.publish the topic which is joystick and the value which is the inputValue.value 
+				console.log(inputVal.value) //console log the variable inputValue.value
+				oldValue = joyStick.GetDir(); // oldValue is equal to joyStick.GetDir()
+			}
+		}, 1500
+		)
+
+		var broker = 'wss://test.mosquitto.org:8081/mqtt'; //initialized variable broker to wss://test.mosquitto.org:8081/mqtt
+		var client = mqtt.connect(broker); //Initialized client to mqtt.connect(broker)
+		var status_header = document.getElementById('status-header') //Initialized variable status_header  equal to document.getElementById('status-header')
+        
+		//Setting and checking up the connection to a broker if it is connect.
+		client.on('connect', function () { 
+			status_header.innerHTML = 'Connected to ' + broker; //append broker to the html / status_header.innerHTML = 'Connected to ' + broker
+			console.log('Connected to ' + broker) //console to check if it is connected to a broker
+		})
+
+	</script>
+
+</body>
+
+</html>
